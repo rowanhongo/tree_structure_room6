@@ -1,1 +1,1 @@
-# tree_structure_room6
+# Members are; Rowan Hongo, Julius Iriza, Yves Niyigena
