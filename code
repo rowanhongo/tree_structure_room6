@@ -1,0 +1,104 @@
+#!/usr/bin/python3
+class DirectoryNode:
+    def __init__(self, name):
+        self.name = name  # Name of the directory
+        self.children = []  # List to hold subdirectories (children)
+
+    def add_child(self, child):
+        """Add a new child directory."""
+        self.children.append(child)
+
+    def delete_child(self, child_name):
+        """Delete a directory and its subdirectories by name."""
+        self.children = [child for child in self.children if child.name != child_name]
+
+    def find_child(self, child_name):
+        """Find a child directory by name."""
+        for child in self.children:
+            if child.name == child_name:
+                return child
+        return None
+
+    def __repr__(self):
+        """Return a string representation of the directory and its children."""
+        # Recursively display child names (subdirectories)
+        children_names = [child.name for child in self.children]
+        return f"DirectoryNode(name='{self.name}', children={children_names})"
+
+class DirectoryTree:
+    def __init__(self, root_name):
+        """Initialize the directory tree with a root node."""
+        self.root = DirectoryNode(root_name)
+
+    def add_directory(self, parent_name, dir_name):
+        """Add a directory under a parent directory by name."""
+        parent = self.find_directory(self.root, parent_name)
+        if parent:
+            new_directory = DirectoryNode(dir_name)
+            parent.add_child(new_directory)
+            print(f"Directory '{dir_name}' added under '{parent_name}'")
+        else:
+            print(f"Parent directory '{parent_name}' not found.")
+
+    def find_directory(self, current_node, dir_name):
+        """Find a directory in the tree by its name."""
+        if current_node.name == dir_name:
+            return current_node
+        for child in current_node.children:
+            result = self.find_directory(child, dir_name)
+            if result:
+                return result
+        return None
+
+    def delete_directory(self, dir_name):
+        """Delete a directory and all its subdirectories by name."""
+        def delete_recursive(current_node, dir_name):
+            # Check if this node is the one to delete
+            if current_node.name == dir_name:
+                return None  # Return None to remove the current node
+            # Recur on children and build the new child list
+            new_children = []
+            for child in current_node.children:
+                result = delete_recursive(child, dir_name)
+                if result is not None:
+                    new_children.append(result)
+            current_node.children = new_children
+            return current_node
+
+        # Start the recursive delete from the root
+        self.root = delete_recursive(self.root, dir_name)
+        print(f"Directory '{dir_name}' and its subdirectories deleted.")
+
+    def display_structure(self, node=None, level=0):
+        """Print the directory structure in a readable format."""
+        if node is None:
+            node = self.root
+        print("  " * level + node.name)
+        for child in node.children:
+            self.display_structure(child, level + 1)
+
+# Example Usage
+
+# Create the directory tree
+tree = DirectoryTree("Pictures")
+
+# Add directories
+tree.add_directory("Pictures", "Saved Pictures")
+tree.add_directory("Saved Pictures", "Web Images")
+tree.add_directory("Web Images", "Chrome")
+tree.add_directory("Web Images", "Opera")
+tree.add_directory("Web Images", "Firefox")
+tree.add_directory("Pictures", "Screenshots")
+tree.add_directory("Pictures", "Camera Roll")
+tree.add_directory("Camera Roll", "2025")
+tree.add_directory("Camera Roll", "2024")
+tree.add_directory("Camera Roll", "2023")
+
+# Display the directory structure
+tree.display_structure()
+
+# Delete a directory and its subdirectories
+tree.delete_directory("Web Images")
+
+# Display the updated structure
+tree.display_structure()
